@@ -1,17 +1,17 @@
 import pandas as pd
 import numpy as np
-import Core.Entity.Asset.Swap as es
-import Core.Entity.Asset.Interfaces.IAsset as ias
-import Core.Entity.Asset.AssetClass as ac
-import Core.Engine.AssetAnalytics as aa
+import core.domain.models.asset.Swap as es
+import core.domain.common.interfaces.IAsset as ias
+import core.domain.common.enum.AssetClassType as ac
+import core.domain.engines.AssetEngine as aa
 
 
 # ----------------------------------------------------------------------------------------------------------------
 class SwapSetConfig:
-    def __init__(self, min_dt, selected_series, asset_class : ac.AssetClass):
+    def __init__(self, min_dt, selected_series, asset_class : ac.AssetClassType):
         self.min_dt = min_dt
         self.selected_series = selected_series
-        self.asset_class : ac.AssetClass = asset_class
+        self.asset_class : ac.AssetClassType = asset_class
 
 
 # ----------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ class SwapDao:
         self.get_etf_data()
 
         #Equities
-        asset_class = ac.AssetClass.EQUITY
+        asset_class = ac.AssetClassType.EQUITY
         # min_dt = "2011-10-06"
         min_dt = "2013-07-18" 
         selected_series = ['VLUE US Equity', 'SIZE US Equity', 'USMV US Equity', 'MTUM US Equity', 'QUAL US Equity']
@@ -35,7 +35,7 @@ class SwapDao:
 
 
         #Credit
-        asset_class = ac.AssetClass.CREDIT
+        asset_class = ac.AssetClassType.CREDIT
         min_dt = "2014-01-01"
         selected_series = ['SLQD US Equity', 'LQD US Equity', 'EMHY US Equity', 'HYGH US Equity']
         self.swap_set_configs[asset_class] = SwapSetConfig(min_dt, selected_series, asset_class)
@@ -45,18 +45,18 @@ class SwapDao:
 
 
         # FX
-        asset_class = ac.AssetClass.FX
+        asset_class = ac.AssetClassType.FX
         selected_series = ['UUP US Equity', 'FXY US Equity', 'FXE US Equity', 'UDN US Equity', 'CEW US Equity']
         self.swap_set_configs[asset_class] = SwapSetConfig(min_dt, selected_series, asset_class)
 
 
         #Commodities
-        asset_class = ac.AssetClass.COMMODITY
+        asset_class = ac.AssetClassType.COMMODITY
         selected_series = ['UCO US Equity', 'SCO US Equity', 'KOLD US Equity', 'ZSL US Equity', 'GLL US Equity', 'GLD US Equity',
                         'GDX US Equity', 'PDBC US Equity']
         self.swap_set_configs[asset_class] = SwapSetConfig(min_dt, selected_series, asset_class)
 
-    def get_dates(self, asset_class : ac.AssetClass):
+    def get_dates(self, asset_class : ac.AssetClassType):
         return list(self.etf_df[self.etf_df["Date"] > self.swap_set_configs[asset_class].min_dt]["Date"])
 
 
@@ -65,7 +65,7 @@ class SwapDao:
         # Carregando Arquivos:
 
         # reading files:
-        self.etf_df = pd.read_csv("_Input/all_data_v2.csv")
+        self.etf_df = pd.read_csv("data/input/all_data_v2.csv")
 
         etf_series = list(self.etf_df.columns[1:])
         etf_series.remove("SOFR")
@@ -89,17 +89,17 @@ class SwapDao:
 
         # ----------------------------------------------------------------------------------------------------------------
     
-    def get_swap_set(self, asset_class : ac.AssetClass, short_index : str):
+    def get_swap_set(self, asset_class : ac.AssetClassType, short_index : str):
         return self.__get_swap_set(self.swap_set_configs[asset_class].selected_series, self.etf_df, short_index)
     
     
-    def get_etfs_cumulative_return(self, asset_class : ac.AssetClass, short_index):
+    def get_etfs_cumulative_return(self, asset_class : ac.AssetClassType, short_index):
         return self.__get_cumulative_return(asset_class, short_index, self.etf_df, False)
 
-    def get_swaps_cumulative_return(self, asset_class : ac.AssetClass, short_index):
+    def get_swaps_cumulative_return(self, asset_class : ac.AssetClassType, short_index):
         return self.__get_cumulative_return(asset_class, short_index, self.etf_df, True)
 
-    def __get_cumulative_return(self, asset_class : ac.AssetClass, short_index, etf_df, swap_mode : bool):
+    def __get_cumulative_return(self, asset_class : ac.AssetClassType, short_index, etf_df, swap_mode : bool):
         swaps_accum_df = pd.DataFrame()
         assets_accum_df = pd.DataFrame()
         equity_swaps = []

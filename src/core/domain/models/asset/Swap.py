@@ -1,5 +1,5 @@
-import Core.Entity.Asset.Interfaces.IAsset as ias
-import Core.Engine.AssetAnalytics as aa
+import core.domain.common.interfaces.IAsset as ias
+import core.domain.engines.AssetEngine as aa
 import pandas as pd
 import numpy as np
 
