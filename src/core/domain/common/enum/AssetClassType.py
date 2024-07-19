@@ -1,5 +1,5 @@
 from enum import Enum
-class AssetClass(Enum):
+class AssetClassType(Enum):
     EQUITY = 1
     CREDIT = 2
     FX = 3

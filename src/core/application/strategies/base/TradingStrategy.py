@@ -2,11 +2,12 @@ from typing import List, Dict
 from datetime import date
 import pandas as pd
 
-import Core.Entity.Asset.Interfaces.IAsset as ias
-import Core.Engine.Trading.TradingPosition as etp
-import Core.Entity.Trading.TradingResult as tr
-import Core.Entity.Asset.PortfolioAnalytics as pan
-import Core.Entity.Trading.TradingOrder as tord
+import Core.Application.Trading.TradingPosition as etp
+
+import Core.Domain.Asset.Interfaces.IAsset as ias
+import Core.Domain.Trading.TradingResult as tr
+import Core.Domain.Asset.PortfolioAnalytics as pan
+import Core.Domain.Trading.TradingOrder as tord
 
 
 # Cada estrategia contempla um Portfolio (<portfolio>), que carrega a lista de assets e consegue calcular sua vol., etc

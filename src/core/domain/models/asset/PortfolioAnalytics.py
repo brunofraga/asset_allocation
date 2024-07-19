@@ -1,6 +1,6 @@
 from typing import List, Dict
 import pandas as pd
-import Core.Entity.Asset.Interfaces.IAsset as ias
+import core.domain.common.interfaces.IAsset as ias
 import numpy as np
 
 # Cada Portfolio tem uma lista de assets para olhar: dicionario <assets>

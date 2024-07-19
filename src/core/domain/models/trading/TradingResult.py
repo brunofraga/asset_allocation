@@ -1,6 +1,6 @@
 from datetime import date
 import pandas as pd
-import Core.Entity.Asset.Interfaces.IAsset as ias
+import core.domain.common.interfaces.IAsset as ias
 
 
 DATE = ias.DATE

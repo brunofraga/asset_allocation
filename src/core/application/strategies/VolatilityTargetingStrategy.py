@@ -1,9 +1,11 @@
+import core.application.strategies.base.TradingStrategy as ts
+import core.domain.common.interfaces.IAsset as ias
+import core.domain.models.trading.TradingResult as tr
+import core.domain.models.trading.TradingOrder as tord
+
 from datetime import date
 from typing import List
-import Core.Engine.Strategy.Base.TradingStrategy as ts
-import Core.Entity.Asset.Interfaces.IAsset as ias
-import Core.Entity.Trading.TradingResult as tr
-import Core.Entity.Trading.TradingOrder as tord
+
 
 STRATEGY_TP_NAME = "Vol. Targeting"
 

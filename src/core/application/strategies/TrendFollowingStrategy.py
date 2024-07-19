@@ -1,15 +1,16 @@
+import core.application.strategies.base.TradingStrategy as ts
+import core.domain.common.interfaces.IAsset as ias
+import core.domain.models.trading.TradingResult as tr
+import core.domain.models.trading.TradingOrder as tord
+import core.domain.models.asset.PortfolioAnalytics as p
+
 from datetime import date
 from typing import List
-import Core.Engine.Strategy.Base.TradingStrategy as ts
-import Core.Entity.Asset.Interfaces.IAsset as ias
-import Core.Entity.Trading.TradingResult as tr
-import Core.Entity.Trading.TradingOrder as tord
 import math
-import Core.Entity.Asset.PortfolioAnalytics as p
 import pandas as pd
 import numpy as np
-DAYS_IN_MONTH = 21
 
+DAYS_IN_MONTH = 21
 STRATEGY_TP_NAME = "Trend-Following"
 
 

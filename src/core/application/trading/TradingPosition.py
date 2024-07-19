@@ -1,8 +1,8 @@
 from datetime import date
 import pandas as pd
 
-import Core.Entity.Asset.Interfaces.IAsset as ias
-import Core.Entity.Trading.TradingResult as tr
+import core.domain.common.interfaces.IAsset as ias
+import core.domain.models.trading.TradingResult as tr
 
 class TradingPosistion:
     # --- Constants ------------------------------------------
