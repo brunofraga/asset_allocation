@@ -84,7 +84,8 @@ class Portfolio (ias.IAsset):
         covariance = self.get_covariance_matrix(target_date, last_n_points)
 
         # calculando vol do portfolio
-        portfolio_var =  self.current_asset_weights @ covariance @ self.current_asset_weights.T
+        current_asset_weights_series = pd.Series(self.current_asset_weights)
+        portfolio_var =  current_asset_weights_series @ covariance @ current_asset_weights_series.T
         portfolio_vol = np.sqrt(portfolio_var)
         
         return portfolio_vol
