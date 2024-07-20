@@ -24,6 +24,7 @@ class TradingStrategy:
         self.hypothetical_trading_positions : Dict[str, etp.TradingPosistion] = {}
         self.strategy_result : tr.TradingResult = tr.TradingResult()
         self.portfolio : pan.Portfolio = pan.Portfolio("Portfolio: " + strategy_name, assets)
+        self.portfolio_asset_names : List[str] = self.portfolio.asset_names
         self.strategy_vol: float = 0
         # --------------------------------------------------------
         
