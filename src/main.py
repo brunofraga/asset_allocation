@@ -9,9 +9,10 @@ import presentation.panels.simple_return_analyis as sra
 # Function to run back test
 def run_bt():
     print("Running BT...")
+    prmt.print_dash_line()
     backtest = sebt.SwapEtfsBackTest(short_index="Libor")
     backtest.run()
-    prmt.print_dash_line()
+    
 
 # Function to plot asset returns
 def plot_asset_returns():
@@ -22,8 +23,8 @@ def plot_asset_returns():
 
 prmt.show_header()
 
-plot_asset_returns()
-# run_bt()
+# plot_asset_returns()
+run_bt()
 
 prmt.print_dash_line()
 

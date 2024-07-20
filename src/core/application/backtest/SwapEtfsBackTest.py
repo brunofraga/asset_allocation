@@ -6,10 +6,13 @@ import core.application.strategies.TrendFollowingStrategy as ts
 import core.infra.SwapRepository as sr
 import core.domain.common.enum.AssetClassType as ac
 import core.domain.common.logger.LoggingUtilities as lu
+import core.domain.helpers.dirhelper as dh
 
 class SwapEtfsBackTest:
     def __init__(self, short_index : str):
         lu.log("Backtest: STARTING")
+        self.book_target_vol = 0.2
+        self.book_max_leverage = 1
 
         # ----------------------------------------------------------------------------------------------------------------
         # Initializing swap sets:
@@ -51,13 +54,30 @@ class SwapEtfsBackTest:
         # ----------------------------------------------------------------------------------------------------------------
         # Initializing and running Trading Book
         # ----------------------------------------------------------------------------------------------------------------
-        book = tb.TradingBook('Offshore Book', strategies=self.book_strats, target_dates=self.dates, target_vol=0.2, max_leverage=1)
+        book = tb.TradingBook('Offshore Book', strategies=self.book_strats, target_dates=self.dates, target_vol=self.book_target_vol, max_leverage=self.book_max_leverage)
         lu.log("Running Book!")
         book.run()
         lu.log("Backtest: FINISHED") # book.trading_results.to_csv("_Output/book_result.csv")
         r = book.trading_results.results
         r = r.merge(self.short_df, on="Date")
-        r.to_csv("../data/output/book_result_full_book_max_leverage=1_with_vols.csv", index=False)
+
+        # Salvando resultados e configuracoes:
+        result_folder = dh.getNewResultDirectory("data/output/") 
+        back_test_data = self.get_backtest_config()
+        dh.save_dictionary_as_json(back_test_data, result_folder +  "/back_test_config.json")
+        r.to_csv(result_folder + "/book_result_full_book_max_leverage=1_with_vols.csv", index=False)
         # r.to_csv("_Output/book_result_comdty_one_port.csv", index=False)
 
         lu.log("Resultado salvo!")
+
+
+
+    def get_backtest_config(self):
+        back_test_data = {}
+        back_test_data["Max Date"] = max(self.dates)
+        back_test_data["Min Date"] = min(self.dates)
+        back_test_data["Short Index"] = max(self.dates)
+        back_test_data["book_target_vol"] = self.book_target_vol
+        back_test_data["book_max_leverage"] = self.book_max_leverage
+        back_test_data["Stretegies"] = dh.get_serialized_parameters_from_list(self.book_strats)
+        return back_test_data
