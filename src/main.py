@@ -1,10 +1,14 @@
 #-------------------------------------------------------------------#
 # ASSET ALLOCATION
+# requirements.txt gerado a partir de pipreqs src
 #-------------------------------------------------------------------#
+
+
 
 import core.application.backtest.SwapEtfsBackTest as sebt
 import presentation.terminal.prompt_styler as prmt
 import presentation.panels.simple_return_analyis as sra
+import sys
 
 # Function to run back test
 def run_bt():
@@ -23,9 +27,20 @@ def plot_asset_returns():
 
 prmt.show_header()
 
-# plot_asset_returns()
-run_bt()
+def main(argv):
+    # default mode:
+    if (len(argv) == 1):
+        run_bt()
+    else:
+        second_argument = argv[1]
+        if (second_argument == "run_bt"):
+            run_bt()
+        elif (second_argument ==  "plot_asset_returns"):
+            plot_asset_returns()
+        else:
+            print("Not a valid command: " + second_argument)
 
-prmt.print_dash_line()
 
 
+if __name__ == '__main__':
+    main(sys.argv)
