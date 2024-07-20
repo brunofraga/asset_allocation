@@ -1,0 +1,1 @@
+# Lógica da Estratégia de Trend-Following

@@ -1,0 +1,1 @@
+# Lógica de controle do Trading Book
