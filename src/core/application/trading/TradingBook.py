@@ -98,7 +98,7 @@ class TradingBook:
                     pivot[ga.GeneralAsset.DATE] = pivot.index
                     for strategy_name in self.strategies:
                         #unpivoting:
-                        asset_df =  pivot[[strategy_name]].unstack().reset_index(name=strategy_name)[[ga.GeneralAsset.DATE, strategy_name]]
+                        asset_df =  pivot[[strategy_name]].unstack().reset_index(name=strategy_name)[[ga.GeneralAsset.DATE, strategy_name]].tail(self.days_range_to_calc_vol)
                         asset_df[ga.GeneralAsset.LOG_RETURN] = asset_df[strategy_name] - asset_df[strategy_name].mean() # pnl pode ser negativo, e ai nao podemos calcular o log retorno dele
                         gen_asset = ga.GeneralAsset(strategy_name,  asset_df)
                         asset_list.append(gen_asset)
