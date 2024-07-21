@@ -2,11 +2,11 @@
 
 O retorno diário do swap é dado por:
 
-$$r^{Swap}_t = r^{ETF}_t - r^{short}_t$$ 
+$$r^{Swap}_t = r^{ETF}_t - r^{short}_t \tag{1}$$ 
 
 Dessa forma, usando como base o preço do *total return index (gross dividends)* ($p_t$) dos [ETFs usados](desc_etf_doc.md), calculamos o log-retorno diário dos ETFs como:
 
-$$r^{ETF}_t = log(p_t) - log(p_{t-1})$$ 
+$$r^{ETF}_t = log(p_t) - log(p_{t-1})\tag{2}$$ 
 
 ```python
 import pandas as pd
@@ -18,7 +18,7 @@ def calculate_log_return(df : pd.DataFrame, price_col : str):
 
 A base da **LIBOR** (índice usado na perna short do swap) foi dado em taxa anual, incialmente precisamos transformar a taxa anual em taxa diária e em seguida transformar em log-retorno:
 
-$$r^{\text{daily-log-return}}_t = log((1 + r^{annual}_t)^{1/365}) $$
+$$r^{\text{daily-log-return}}_t = log((1 + r^{annual}_t)^{1/365}) \tag{3}$$
 
 
 ```python
