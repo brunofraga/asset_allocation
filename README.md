@@ -1,7 +1,7 @@
 # Asset Allocation
 
-Projeto de Asset Allocation (Mestrado Profissional de Economia)
-Início do desenvolvimento: 25/06/2024
+<p>Projeto de Asset Allocation (Mestrado Profissional de Economia)</p>
+<p>Início do desenvolvimento: 25/06/2024</p>
 
 ---------
 
@@ -48,7 +48,14 @@ Para desenvolver esse trabalho, o modelo de **Clean Architecture** foi usado com
 
 ## Dependências
 
-As dependências para esse projeto estão listadas no arquivo `requirements.txt`. São elas:
+As dependências para esse projeto estão listadas no arquivo `requirements.txt`. Para instalá-las usando pip, basta escrever no terminal:
+
+`````
+pip install -r requirements.txt
+`````
+
+
+As libs externas usadas nesse projeto são:
 
 ````
 ipython==8.12.3
