@@ -50,11 +50,11 @@ class TradingStrategy:
                 self.__update_position(hypo_tp, target_dt, trd_order, 1)
                 tp_result = self.__update_position(tp, target_dt, trd_order, trading_strategy_weight)
 
-                self.strategy_vol = self.portfolio.get_portfolio_volatility(target_dt, 90)
-                tp_result["Strategy Vol."] = self.strategy_vol
-
                 # saving results:
                 self.strategy_daily_result.attach_dataframe(tp_result)
+            
+            self.strategy_vol = self.portfolio.get_portfolio_volatility(target_dt, 90)
+            self.strategy_daily_result.results["Strategy Vol."] = self.strategy_daily_result
                 
         #print("Daily Results:")
         #print(self.strategy_daily_result.results)
