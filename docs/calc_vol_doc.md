@@ -49,7 +49,7 @@ Uma posição $w_{a,t} > 0 $ significa que a estratégia está long no swap e um
 
 Sendo uma estratégia com k swaps, o vetor de posições para cada swap usado nessa estratégia é definido por:
 
-$$W_{t} = \begin{bmatrix} w_{1,t} \\ w_{2,t} \\ \vdots \\ w_{k,t} \end{bmatrix}^T \tag{3}$$
+$$W_{t} = \begin{bmatrix} w_{1,t} \\\ w_{2,t} \\\ \vdots \\\ w_{k,t} \end{bmatrix}^T \tag{3}$$
 
 
 Assim, dado o vetor de posições da estratégia e a matriz de covariância dos log-retornos dos swaps $COV_{t}^{Swaps}$, a volatilidade da estratégia é dada por:
@@ -82,7 +82,14 @@ $$
 
 onde $m$ é o número de estratégias. Com isso, o vetor de pesos para cada estratégia no book é definido por:
 
-$$P_{t} = \begin{bmatrix} \rho_{1,t} \\ \rho_{2,t} \\ \vdots \\ \rho_{m,t} \end{bmatrix}^T \tag{6}$$
+<!-- $$ V^{Book}_{t} = \begin{bmatrix}
+           x_{1} \\
+           x_{2} \\
+           \vdots \\
+           x_{m}
+         \end{bmatrix}$$ -->
+
+$$P_{t} = \begin{bmatrix} \rho_{1,t} \\\ \rho_{2,t} \\\ \vdots \\\ \rho_{m,t} \end{bmatrix}^T \tag{6}$$
 
 Para calcular a matriz de correlação das estratégias, usamos como *proxy* do log-retorno o P&L diário da estratégia, desconsiderando a média de P&L diário dos últimos $n$ dias.
 
