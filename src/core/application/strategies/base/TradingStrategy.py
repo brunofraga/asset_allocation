@@ -54,7 +54,7 @@ class TradingStrategy:
                 self.strategy_daily_result.attach_dataframe(tp_result)
             
             self.strategy_vol = self.portfolio.get_portfolio_volatility(target_dt, 90)
-            self.strategy_daily_result.results["Strategy Vol."] = self.strategy_daily_result
+            self.strategy_daily_result.results["Strategy Vol."] = self.strategy_vol
                 
         #print("Daily Results:")
         #print(self.strategy_daily_result.results)

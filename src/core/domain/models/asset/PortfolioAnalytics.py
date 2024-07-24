@@ -87,7 +87,8 @@ class Portfolio (ias.IAsset):
         current_asset_weights_series = pd.Series(self.current_asset_weights)
         portfolio_var =  current_asset_weights_series @ covariance @ current_asset_weights_series.T
         portfolio_vol = np.sqrt(portfolio_var)
-        
+        portfolio_vol = portfolio_vol * np.sqrt(252)
+
         return portfolio_vol
     
     def calc_portfolio_volatility_with_weights(self, target_date, last_n_points, current_asset_weights):
@@ -96,6 +97,7 @@ class Portfolio (ias.IAsset):
         # calculando vol do portfolio
         portfolio_var =  current_asset_weights @ covariance @ current_asset_weights.T
         portfolio_vol = np.sqrt(portfolio_var)
+        portfolio_vol = portfolio_vol * np.sqrt(252)
         
         return portfolio_vol
 
@@ -112,6 +114,7 @@ class Portfolio (ias.IAsset):
         # calculando vol do portfolio
         portfolio_var =  intial_w @ covariance @ intial_w.T
         portfolio_vol = np.sqrt(portfolio_var)
+        portfolio_vol = portfolio_vol * np.sqrt(252)
         
         # calculando fator de ajuste:
         factor = min(target_vol/portfolio_vol, max_leverage)
