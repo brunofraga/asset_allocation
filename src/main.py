@@ -17,7 +17,7 @@ def run_bt():
     prmt.print_dash_line()
     backtest = sebt.SwapEtfsBackTest(short_index="Libor")
     result_dir = backtest.run()
-    tra.run(result_dir)
+    tra.run(result_dir, True)
     
 
 # Function to plot asset returns
@@ -46,4 +46,4 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv)
-    # tra.run_pre_defined()
+    # tra.run_pre_defined(True)

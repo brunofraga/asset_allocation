@@ -10,9 +10,8 @@ STRATEGY_TP_NAME = "Vol. Targeting"
 class VolatilityTargetingStrategy (ts.TradingStrategy):
 
     def __init__(self, strategy_name : str, assets : List[ias.IAsset], target_vol,  max_leverage=3, general_stop_function_active : bool = True):
-        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets, general_stop_function_active)
+        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets, target_vol, general_stop_function_active)
         # --- Properties -----------------------------------------
-        self.target_vol : float = target_vol
         self.days_to_realocate : int = 90
         self.days_range_to_calc_vol : int = 90
         self.days_since_trade : int = self.days_to_realocate

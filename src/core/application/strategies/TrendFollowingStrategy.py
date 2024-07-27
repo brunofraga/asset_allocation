@@ -17,13 +17,12 @@ STRATEGY_TP_NAME = "Trend-Following"
 class TrendFollowingStrategy (ts.TradingStrategy):
 
     def __init__(self, strategy_name : str, assets : List[ias.IAsset], target_vol, months_to_lag, months_to_hold, max_leverage, general_stop_function_active : bool = True):
-        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets, general_stop_function_active)
+        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets, target_vol, general_stop_function_active)
         # --- Properties -----------------------------------------
         self.lag_period : float = months_to_lag * DAYS_IN_MONTH #months to days
         self.holding_period : float = months_to_hold * DAYS_IN_MONTH #months to days
 
         self.max_leverage : float = max_leverage
-        self.target_vol : float = target_vol
         self.days_to_realocate : int = 90
         self.days_range_to_calc_vol : int = 90
         self.days_since_trade : int = self.holding_period 
