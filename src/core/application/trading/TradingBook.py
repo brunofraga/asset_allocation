@@ -4,6 +4,7 @@ import core.domain.models.trading.TradingResult as tr
 import core.domain.models.asset.GeneralAsset as ga
 import core.domain.models.asset.PortfolioAnalytics as p
 
+from tqdm import tqdm
 from typing import List, Dict
 from datetime import date
 import pandas as pd
@@ -51,7 +52,11 @@ class TradingBook:
     # Running trading book backtest:
     def run(self):
         self.days_running_all_strategies = 0
-        for target_date in self.target_dates:
+        
+        
+        print("")
+        for target_date in tqdm(self.target_dates, f'Backtesting {self.trading_book_name.upper()}'):
+        #for target_date in self.target_dates:
             self.__update_strategy_weights_by_vol_targeting(target_date)
 
             for strategy_name in self.strategies:
