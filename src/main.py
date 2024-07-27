@@ -8,6 +8,7 @@
 import core.application.backtest.SwapEtfsBackTest as sebt
 import presentation.terminal.prompt_styler as prmt
 import presentation.panels.simple_return_analyis as sra
+import presentation.panels.trading_result_analyis as tra
 import sys
 
 # Function to run back test
@@ -15,7 +16,8 @@ def run_bt():
     print("Running BT...")
     prmt.print_dash_line()
     backtest = sebt.SwapEtfsBackTest(short_index="Libor")
-    backtest.run()
+    result_dir = backtest.run()
+    tra.run(result_dir)
     
 
 # Function to plot asset returns
@@ -44,3 +46,4 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv)
+    # tra.run_pre_defined()
