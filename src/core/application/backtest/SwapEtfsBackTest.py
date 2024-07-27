@@ -67,6 +67,7 @@ class SwapEtfsBackTest:
         # r.to_csv("_Output/book_result_comdty_one_port.csv", index=False)
 
         lu.log("Resultado salvo!")
+        return result_folder
 
 
 
