@@ -64,9 +64,9 @@ class TradingBook:
             
             if (self.all_strategies_ready):
                 self.days_running_all_strategies += 1
-            
-
-            self.trading_results.attach_value(target_date, "Book Vol", self.book_vol)
+                
+            if(not(self.trading_results.is_empty())):
+                self.trading_results.attach_value(target_date, "Book Vol", self.book_vol)
 
         return self.trading_results
     

@@ -58,6 +58,9 @@ class TradingResult:
     def attach_value(self, target_dt, col_name, col_value ):
         self.results.loc[self.results[DATE] == target_dt, col_name] = col_value
 
+    def is_empty(self) -> bool:
+        return self.results.empty
+
 
 def union(result : TradingResult, other_result : TradingResult):
     tr = TradingResult()
