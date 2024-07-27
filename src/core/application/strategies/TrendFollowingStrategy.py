@@ -16,8 +16,8 @@ STRATEGY_TP_NAME = "Trend-Following"
 
 class TrendFollowingStrategy (ts.TradingStrategy):
 
-    def __init__(self, strategy_name : str, assets : List[ias.IAsset], target_vol, months_to_lag, months_to_hold, max_leverage):
-        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets)
+    def __init__(self, strategy_name : str, assets : List[ias.IAsset], target_vol, months_to_lag, months_to_hold, max_leverage, general_stop_function_active : bool = True):
+        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets, general_stop_function_active)
         # --- Properties -----------------------------------------
         self.lag_period : float = months_to_lag * DAYS_IN_MONTH #months to days
         self.holding_period : float = months_to_hold * DAYS_IN_MONTH #months to days
@@ -35,7 +35,7 @@ class TrendFollowingStrategy (ts.TradingStrategy):
 
     def get_trading_order(self, target_date : date) -> tord.TradingOrder:
         trading_order = tord.TradingOrder(self.portfolio)
-        trading_day = self.days_since_trade >= self.holding_period
+        trading_day = (self.days_since_trade >= self.holding_period) | self.resume_trading_signal
 
         if (trading_day):
 
