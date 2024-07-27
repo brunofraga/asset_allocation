@@ -12,7 +12,7 @@ class SwapEtfsBackTest:
     def __init__(self, short_index : str):
         lu.log("Backtest: STARTING")
         self.book_target_vol = 0.2
-        self.book_max_leverage = 1
+        self.book_max_leverage = 3
 
         # ----------------------------------------------------------------------------------------------------------------
         # Initializing swap sets:
