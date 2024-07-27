@@ -12,7 +12,7 @@ import numpy as np
 
 class TradingBook:
 
-    def __init__(self, trading_book_name : str, strategies : List[ts.TradingStrategy], target_dates : List[date], target_vol : float, max_leverage=3):
+    def __init__(self, trading_book_name : str, strategies : List[ts.TradingStrategy], target_dates : List[date], target_vol : float, max_leverage=1):
         # --- Properties -----------------------------------------
         self.trading_book_name : str = trading_book_name
         self.strategies : Dict[str, ts.TradingStrategy] = {}
@@ -72,6 +72,7 @@ class TradingBook:
                 
             if(not(self.trading_results.is_empty())):
                 self.trading_results.attach_value(target_date, "Book Vol", self.book_vol)
+                self.trading_results.attach_value(target_date, "all_strategies_ready", self.all_strategies_ready)
 
         return self.trading_results
     
