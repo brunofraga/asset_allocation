@@ -63,4 +63,8 @@ matplotlib==3.7.5
 numpy==1.23.5
 pandas==1.1.3
 plotly==5.8.0
+tqdm==4.50.2
 ````
+
+<!-- Para atualizar a lista, escreva o comando: pipreqs --force -->
+
