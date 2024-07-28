@@ -18,7 +18,7 @@ class Portfolio (ias.IAsset):
         self.assets : Dict[str, ias.IAsset] = {}
         self.asset_names : List[str] = []
         self.log_returns : pd.DataFrame = pd.DataFrame()
-        self.current_asset_weights  = {}
+        self.current_asset_exposures  = {}
         self.asset_weights : pd.DataFrame = pd.DataFrame()
         # --------------------------------------------------------
 
@@ -27,7 +27,7 @@ class Portfolio (ias.IAsset):
             asset_name = asset.get_asset_name()
             self.asset_names.append(asset_name)
 
-            self.current_asset_weights[asset_name] = 0
+            self.current_asset_exposures[asset_name] = 0
             self.assets[asset_name] = asset
             a_df = asset.get_daily_log_returns().rename(columns={ias.LOG_RETURN : asset_name})
 
@@ -84,10 +84,17 @@ class Portfolio (ias.IAsset):
         covariance = self.get_covariance_matrix(target_date, last_n_points)
 
         # calculando vol do portfolio
-        current_asset_weights_series = pd.Series(self.current_asset_weights)
-        portfolio_var =  current_asset_weights_series @ covariance @ current_asset_weights_series.T
-        portfolio_vol = np.sqrt(portfolio_var)
-        portfolio_vol = portfolio_vol * np.sqrt(252)
+        current_asset_weights_series = pd.Series(self.current_asset_exposures)
+
+        total_gross_exposure = sum([np.abs(exposure) for exposure in current_asset_weights_series])
+
+        portfolio_vol = 0
+        if (total_gross_exposure > 0):
+            current_asset_weights_series = current_asset_weights_series/total_gross_exposure
+
+            portfolio_var =  current_asset_weights_series @ covariance @ current_asset_weights_series.T
+            portfolio_vol = np.sqrt(portfolio_var)
+            portfolio_vol = portfolio_vol * np.sqrt(252)
 
         return portfolio_vol
     
