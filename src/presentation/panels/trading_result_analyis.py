@@ -42,9 +42,12 @@ def plot_images_from_dataframe(out_pah : str, results : pd.DataFrame, save_image
      figs_to_plot.append(specific_format(plt.plot_series(book_pivot_vol,"Book Result: Vol")))
 
      if (save_images):
+             i = 1
              for fig in figs_to_plot:
                   fig_name = fig.layout.title.text.replace("</", "<").replace(":", " ").replace("/","-").replace("<b>", "").replace("<i>", "")
+                  fig_name = "{:02d}".format(i) + "_" + fig_name
                   fig.write_image(out_pah + "/" + fig_name + ".png")
+                  i += 1
      
      for fig in figs_to_plot:
           fig.show()
