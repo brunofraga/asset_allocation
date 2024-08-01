@@ -42,20 +42,30 @@ class TrendFollowingStrategy (ts.TradingStrategy):
 
         
             if (self.portfolio.has_enough_data(target_date, self.days_range_to_calc_vol)):
-                #l_weights = self.long_portfolio.get_vol_targeting_weights(target_date, self.days_range_to_calc_vol, self.target_vol,self.max_leverage)*0.5
-                #s_weights = self.short_portfolio.get_vol_targeting_weights(target_date, self.days_range_to_calc_vol, self.target_vol, self.max_leverage)*-0.5
-                # weights = pd.concat([l_weights, s_weights])
 
-                weights = self.portfolio.get_vol_targeting_weights(target_date, self.days_range_to_calc_vol, self.target_vol,self.max_leverage)*0.5
+                # Obtendo os novos pesos alvo de acordo com vol target:
+                weights = self.portfolio.get_vol_targeting_weights(target_date, self.days_range_to_calc_vol, self.target_vol,self.max_leverage, self.allocation_sign)
 
-
-
+                # Obtendo total gross exposure para calcular os pesos atuais:
+                total_gross_exposure = sum([np.abs(self.hypothetical_trading_positions[asset_name].exposure_eop) for asset_name in self.hypothetical_trading_positions])
                 
+                # O trade sera peso*gross. Se o gross ==0, entao multiplicaremos por 1
+                trade_mult  = 1.0
+
 
                 for asset_name in self.hypothetical_trading_positions:
                     hypo_tp = self.hypothetical_trading_positions[asset_name]
-                    trade = self.allocation_sign[asset_name] * weights[asset_name] - hypo_tp.exposure_eop
-                    trading_order.add_trade(asset_name, trade)
+
+                    current_weight = 0 if (total_gross_exposure == 0) else hypo_tp.exposure_eop/total_gross_exposure
+                    desired_w = weights[asset_name] 
+
+                    weight_delta = desired_w - current_weight
+                    trade = weight_delta * trade_mult
+
+                    if (abs(weight_delta) >= 0.01):
+                        trading_order.add_trade(asset_name, trade)
+                    else:
+                        trading_order.add_trade(asset_name, 0)
         
         return trading_order
     
