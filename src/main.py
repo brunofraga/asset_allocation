@@ -15,7 +15,9 @@ import sys
 def run_bt():
     print("Running BT...")
     prmt.print_dash_line()
-    backtest = sebt.SwapEtfsBackTest(short_index="Libor")
+    bt_desc = "Rodando com vol targeting"
+    print(bt_desc)
+    backtest = sebt.SwapEtfsBackTest(short_index="Libor", description=bt_desc)
     result_dir = backtest.run()
     tra.run(result_dir, True)
     

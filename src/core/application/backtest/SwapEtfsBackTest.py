@@ -9,10 +9,11 @@ import core.domain.common.logger.LoggingUtilities as lu
 import core.domain.helpers.dirhelper as dh
 
 class SwapEtfsBackTest:
-    def __init__(self, short_index : str):
+    def __init__(self, short_index : str, description : str):
         lu.log("Backtest: STARTING")
         self.book_target_vol = 0.2
         self.book_max_leverage = 3
+        self.description = description
 
         # ----------------------------------------------------------------------------------------------------------------
         # Initializing swap sets:
@@ -34,18 +35,11 @@ class SwapEtfsBackTest:
         # Initializing Strategies:
         # ----------------------------------------------------------------------------------------------------------------
         self.book_strats = []
-        self.book_strats.append(vst.VolatilityTargetingStrategy("Equity", equity_swaps, target_vol=0.20))
-        self.book_strats.append(vst.VolatilityTargetingStrategy("Credit", credit_swaps, target_vol=0.20))
-        self.book_strats.append(ts.TrendFollowingStrategy("FX",fx_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=5))
-        self.book_strats.append(ts.TrendFollowingStrategy("Comdty",comdty_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=3))
-
-
-        # Testamos, mas esse conjunto nao deu certo
-        # book_strats.append(ts.TrendFollowingStrategy("Equity",equity_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=3))
-        # book_strats.append(ts.TrendFollowingStrategy("Credit",credit_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=4))
-        # book_strats.append(ts.TrendFollowingStrategy("FX",fx_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=5))
-        # book_strats.append(ts.TrendFollowingStrategy("Comdty",comdty_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=3))
-
+        self.book_strats.append(vst.VolatilityTargetingStrategy("Equity", equity_swaps, target_vol=0.20, stop_loss_limit=0.5))
+        self.book_strats.append(vst.VolatilityTargetingStrategy("Credit", credit_swaps, target_vol=0.20, stop_loss_limit=0))
+        self.book_strats.append(ts.TrendFollowingStrategy("FX",fx_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=2, stop_loss_limit=0))
+        self.book_strats.append(ts.TrendFollowingStrategy("Comdty",comdty_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=3, stop_loss_limit=0))
+        
         lu.log("Strategies initialized!")
 
     def run(self):
@@ -73,6 +67,7 @@ class SwapEtfsBackTest:
 
     def get_backtest_config(self):
         back_test_data = {}
+        back_test_data["Description"] = self.description
         back_test_data["Max Date"] = max(self.dates)
         back_test_data["Min Date"] = min(self.dates)
         back_test_data["Short Index"] = max(self.dates)
