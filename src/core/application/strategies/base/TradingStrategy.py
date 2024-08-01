@@ -17,7 +17,7 @@ import numpy as np
 class TradingStrategy:
     
     # Constructor
-    def __init__(self, strategy_name : str, assets : List[ias.IAsset], general_stop_function_active : bool = True):
+    def __init__(self, strategy_name : str, assets : List[ias.IAsset], target_vol, stop_loss_limit : float = 0.2):
         # Properties ---------------------------------------------
         self.strategy_name : str = strategy_name
         self.trading_positions : Dict[str, etp.TradingPosistion] = {}
@@ -27,14 +27,17 @@ class TradingStrategy:
         self.portfolio_asset_names : List[str] = self.portfolio.asset_names
         self.strategy_vol: float = 0
         self.days_running : int = 0
-        self.is_stoped_by_high_vol = False
+        self.is_stopped = False
         self.is_loss_high = False
         self.is_vol_ok = True
         self.strat_pivot = pd.DataFrame()
         self.DAYS_ON_STOPLOSS = 42
         self.resume_trading_signal = False
         self.is_vol_high = False
-        self.general_stop_function_active = general_stop_function_active
+        self.general_stop_function_active = (stop_loss_limit > 0)
+        self.stop_loss_limit = -stop_loss_limit
+        self.stop_trading_sign = False
+        self.target_vol : float = target_vol
         # --------------------------------------------------------
         
 
@@ -48,40 +51,51 @@ class TradingStrategy:
     def update(self, target_dt : date, trading_order : tord.TradingOrder, trading_strategy_weight : float)  -> tr.TradingResult:
         self.strategy_daily_result = tr.TradingResult()
 
+        self.set_strat_pivot()
+        self.set_numb_of_vols_stds()
+        self.is_vol_high = (self.number_of_vols_stds > 1.65) #& (self.get_loss_from_last_max() < -0.2)
         if (self.general_stop_function_active):
-            self.check_stop_signs()
+            self.stop_trading_sign = False
             self.resume_trading_signal = False
-            if (self.is_vol_high & (not(self.is_loss_high)) ):
-                self.is_vol_ok = self.check_vol_ok()
-                if (self.is_vol_ok):
-                    self.is_vol_high = False 
-                    self.resume_trading_signal = True
-            elif(self.is_loss_high):
+
+            self.check_stop_signs()
+            # if (self.is_vol_high & (not(self.is_loss_high)) ):
+            #     self.is_vol_ok = self.check_vol_ok()
+            #     if (self.is_vol_ok):
+            #         self.is_vol_high = False 
+            #         self.resume_trading_signal = True
+            # elif(self.is_loss_high):
+            if(self.is_loss_high):
                 self.days_to_resume_trading -= 1
                 if (self.days_to_resume_trading == 0):
                     self.is_loss_high = False
                     self.resume_trading_signal = True
         
         # atualizando cada uma das trading_positions:
-        if (self.is_vol_high | self.is_loss_high):
+        if (self.is_loss_high):
             #stoping:
             for asset_name in self.trading_positions:
                 tp = self.trading_positions[asset_name]
                 hypo_tp = self.hypothetical_trading_positions[asset_name]
-                trd_order = - hypo_tp.exposure_eop
+                trd_order = - hypo_tp.exposure_eop if self.stop_trading_sign or abs(hypo_tp.exposure_eop)>0.001  else 0
 
                 # Atualizando posicao (real e hipotetica):
-                self.__update_position(hypo_tp, target_dt, trd_order, 1)
-                tp_result = self.__update_position(tp, target_dt, trd_order, trading_strategy_weight)
+                # self.__update_position(hypo_tp, target_dt, trd_order, 1)
+                # tp_result = self.__update_position(tp, target_dt, trd_order, trading_strategy_weight)
+
+                self.__end_position(hypo_tp, target_dt, trd_order, 1)
+                tp_result = self.__end_position(tp, target_dt, trd_order, trading_strategy_weight)
+
+                
                 
                 # saving results:
                 self.strategy_daily_result.attach_dataframe(tp_result)
 
-            self.is_stoped_by_high_vol = True
+            self.is_stopped = True
         
         
         elif (self.is_vol_ok):
-            self.is_stoped_by_high_vol = False
+            self.is_stopped = False
             for asset_name in self.trading_positions:
                 tp = self.trading_positions[asset_name]
                 hypo_tp = self.hypothetical_trading_positions[asset_name]
@@ -101,6 +115,7 @@ class TradingStrategy:
         # --------
         self.strategy_vol = self.portfolio.get_portfolio_volatility(target_dt, 90)
         self.strategy_daily_result.results["Strategy Vol."] = self.strategy_vol
+        self.strategy_daily_result.results["stop_trading_sign"] = self.stop_trading_sign
                 
         #print("Daily Results:")
         #print(self.strategy_daily_result.results)
@@ -122,12 +137,34 @@ class TradingStrategy:
         trade = trading_strategy_weight * asset_trading_order
                 
         # Executando trade caso necessario
-        if (abs(trade) >= 0.0001):
+        if (trade != 0):
             self.days_since_trade  = 0
             trading_position.execute_trade(target_date, trade)
             asset_exposure = trading_position.exposure_eop
-            self.portfolio.current_asset_weights[trading_position.asset_name] = asset_exposure
-                    
+            
+
+        self.portfolio.current_asset_exposures[trading_position.asset_name] = trading_position.exposure_bop        
+        # saving results:
+        tp_result = trading_position.end_day()
+        return tp_result
+    
+
+    def __end_position(self, trading_position : etp.TradingPosistion, target_date, 
+                               asset_trading_order: float, trading_strategy_weight : float) -> pd.DataFrame:
+        # Abrindo o dia
+        trading_position.start_day(target_date)
+
+        # Obtendo trade e controlando tamanho:
+        trade = -trading_position.exposure_eop
+                
+        # Executando trade caso necessario
+        if (trade != 0):
+            self.days_since_trade  = 0
+            trading_position.execute_trade(target_date, trade)
+            asset_exposure = trading_position.exposure_eop
+            
+
+        self.portfolio.current_asset_exposures[trading_position.asset_name] = trading_position.exposure_bop                    
         # saving results:
         tp_result = trading_position.end_day()
         return tp_result
@@ -145,14 +182,21 @@ class TradingStrategy:
         pass
     
     def check_stop_signs(self):
-        self.set_numb_of_vols_stds()
         loss_from_last_max = self.get_loss_from_last_max()
-        if (not(self.is_vol_high)):
-            self.is_vol_high = (self.number_of_vols_stds >= 3) &  (loss_from_last_max < -0.1)
+        # is_vol_high = (self.number_of_vols_stds >= 3) &  (loss_from_last_max < self.stop_loss_limit /2)
+        # if (not(self.is_vol_high)):
+        #     self.is_vol_high = (self.number_of_vols_stds >= 3) &  (loss_from_last_max < -0.1)
         if (not(self.is_loss_high)):
-            self.is_loss_high = (loss_from_last_max < -0.30)
-            if (self.is_loss_high):
-                self.days_to_resume_trading = self.DAYS_ON_STOPLOSS + 1
+            if (not(self.strat_pivot.empty)):
+                avg_vol = self.strat_pivot.tail(5)["Strategy Vol."].mean()
+                last3_daily_pnl = self.strat_pivot.tail(3)[tr.PNL_DAILY ]
+                is_losing_last_3_days = ((last3_daily_pnl.iloc[0] < 0) &(last3_daily_pnl.iloc[1] < 0) & (last3_daily_pnl.iloc[2] < 0))
+                self.is_loss_high = (loss_from_last_max <= self.stop_loss_limit ) # & (avg_vol >= 1.2*self.target_vol) #& (is_losing_last_3_days)
+                # self.is_loss_high = (self.number_of_vols_stds > 3) &  (loss_from_last_max < -0.1) & (self.strategy_vol > 2*self.target_vol)
+                
+                if (self.is_loss_high):
+                    self.days_to_resume_trading = self.DAYS_ON_STOPLOSS + 1
+                    self.stop_trading_sign = True
         return 
     
     def check_vol_ok(self):
@@ -161,29 +205,31 @@ class TradingStrategy:
     def get_loss_from_last_max(self):
         loss_from_last_max = 0
         if (not(self.strat_pivot.empty)):
-            last_max = self.strat_pivot[tr.PNL_CUMULATIVE].rolling(30, min_periods=1).max().tail(1).iloc[0]
+            last_max = self.strat_pivot[tr.PNL_CUMULATIVE].tail(10).max()
+
             currrent_pnl = self.strat_pivot[tr.PNL_CUMULATIVE].tail(1).iloc[0]
-
             
-
-            loss_from_last_max = (currrent_pnl - last_max)/ last_max
+            if (last_max > 0):
+                loss_from_last_max = (currrent_pnl)/ last_max - 1
+            elif (last_max < 0):
+                loss_from_last_max = 1-(currrent_pnl)/ last_max
+            elif (last_max == 0):
+                loss_from_last_max = currrent_pnl
 
         return loss_from_last_max 
 
 
 
 
+    def set_strat_pivot(self):
+        self.number_of_vols_stds = 0
+        if (self.days_running >= 30):
+            self.strat_pivot = self.strategy_result.results.groupby(tr.DATE).agg({tr.PNL_CUMULATIVE: np.sum, "Strategy Vol." : np.average , tr.PNL_DAILY : np.sum, tr.EXPOSURE_EOP : np.sum})
+            self.strat_pivot = self.strat_pivot.dropna()
+    
     def set_numb_of_vols_stds(self):
         self.number_of_vols_stds = 0
         if (self.days_running >= 30):
-            # pivoting:
-            # pivot = self.trading_results.results.pivot_table(index=tr.DATE, values=tr.PNL_DAILY,  aggfunc=np.sum)
-            # self.vol_pivot = self.strategy_result.results.pivot_table(index=tr.DATE, values="Strategy Vol.",  aggfunc=np.average)
-
-            self.strat_pivot = self.strategy_result.results.groupby(tr.DATE).agg({tr.PNL_CUMULATIVE: np.sum, "Strategy Vol." : np.average })
-            self.strat_pivot = self.strat_pivot.dropna()
-
-
             avg_vol = self.strat_pivot.tail(30)["Strategy Vol."].mean()
             std_vol = self.strat_pivot.tail(30)["Strategy Vol."].std()
 
@@ -196,13 +242,3 @@ class TradingStrategy:
                     self.number_of_vols_stds = (last_vol - avg_vol)/std_vol
                 except:
                     print("Erro!" + " std_vol:"+ str(std_vol)  + " last_vol:"+ str(last_vol))
-    
-    # def get_exposure(self):
-    #     total_exposure = 0
-    #     for asset_name in self.trading_positions:
-    #             tp = self.trading_positions[asset_name]
-    #             hypo_tp = self.hypothetical_trading_positions[asset_name]
-    #             trd_order = - hypo_tp.exposure_eop
-    #             total_exposure = hypo_tp.exposure_eop
-
-    #     hypo_tp.exposure_eop
