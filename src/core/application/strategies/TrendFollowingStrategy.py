@@ -9,6 +9,8 @@ from typing import List
 import math
 import pandas as pd
 import numpy as np
+from sklearn.linear_model import LinearRegression
+
 
 DAYS_IN_MONTH = 21
 STRATEGY_TP_NAME = "Trend-Following"
@@ -16,8 +18,8 @@ STRATEGY_TP_NAME = "Trend-Following"
 
 class TrendFollowingStrategy (ts.TradingStrategy):
 
-    def __init__(self, strategy_name : str, assets : List[ias.IAsset], target_vol, months_to_lag, months_to_hold, max_leverage, general_stop_function_active : bool = True):
-        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets, target_vol, general_stop_function_active)
+    def __init__(self, strategy_name : str, assets : List[ias.IAsset], target_vol, months_to_lag, months_to_hold, max_leverage, stop_loss_limit : float):
+        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets, target_vol, stop_loss_limit)
         # --- Properties -----------------------------------------
         self.lag_period : float = months_to_lag * DAYS_IN_MONTH #months to days
         self.holding_period : float = months_to_hold * DAYS_IN_MONTH #months to days
@@ -26,15 +28,16 @@ class TrendFollowingStrategy (ts.TradingStrategy):
         self.days_to_realocate : int = 90
         self.days_range_to_calc_vol : int = 90
         self.days_since_trade : int = self.holding_period 
+        self.last_factor = 1
         # --------------------------------------------------------
     
     def is_ready(self, target_date : date) -> tord.TradingOrder:
-        return self.portfolio.has_enough_data(target_date, self.lag_period)
+        return self.portfolio.has_enough_data(target_date, self.lag_period*2)
 
 
     def get_trading_order(self, target_date : date) -> tord.TradingOrder:
         trading_order = tord.TradingOrder(self.portfolio)
-        trading_day = (self.days_since_trade >= self.holding_period) | self.resume_trading_signal
+        trading_day = ((self.days_since_trade >= self.holding_period) | self.resume_trading_signal ) & (not(self.is_stopped))
 
         if (trading_day):
 
@@ -57,7 +60,7 @@ class TrendFollowingStrategy (ts.TradingStrategy):
                     hypo_tp = self.hypothetical_trading_positions[asset_name]
 
                     current_weight = 0 if (total_gross_exposure == 0) else hypo_tp.exposure_eop/total_gross_exposure
-                    desired_w = weights[asset_name] 
+                    desired_w = 0.4*self.nex_returns[asset_name]*weights[asset_name] 
 
                     weight_delta = desired_w - current_weight
                     trade = weight_delta * trade_mult
@@ -74,17 +77,37 @@ class TrendFollowingStrategy (ts.TradingStrategy):
         self.long_portfolio_assets = []
         self.short_portfolio_assets = []
         self.allocation_sign = {}
+        self.nex_returns = {}
         for asset_name in self.portfolio.assets:
             s = self.portfolio.assets[asset_name]
             logrets = s.get_daily_log_returns()
-            logrets = logrets[logrets[ias.DATE] < target_date].tail(self.lag_period).reset_index(drop=True)
+            logrets = logrets[logrets[ias.DATE] < target_date].tail(self.lag_period*2).reset_index(drop=True)
 
             # calculating 'monthly' log retuns by grouping every [DAYS_IN_MONTH] days
             month_logrets = logrets.groupby(np.arange(len(logrets.index))// DAYS_IN_MONTH).sum()
+            month_vols = logrets.groupby(np.arange(len(logrets.index))// DAYS_IN_MONTH).std()*np.sqrt(DAYS_IN_MONTH)
 
+            all_df = month_logrets/month_vols
+            all_df = all_df.rename(columns={'log_ret': 'y_train'})
+
+            lag_periods_months = int(self.lag_period/DAYS_IN_MONTH)
+            all_df["x_train"] = all_df["y_train"].shift(lag_periods_months)
+            all_df = all_df.dropna().reset_index()
+            train_df = all_df[:-1]
+            x_test = all_df.iloc[-1]["x_train"]
+
+
+            # Regressor model
+            regressor = LinearRegression()
+            regressor.fit(train_df[["x_train"]].values.reshape(11,1), list(train_df["y_train"]))
+            y_pred = regressor.predict(x_test.reshape(-1,1))     # predicted value of y_test
+            next_return = float(y_pred*float(month_vols.iloc[-1]))
+
+            
             # Getting the sign of the lagged return
-            lagged_return_sign = math.copysign(1, month_logrets[s.LOG_RETURN].iloc[0])
+            lagged_return_sign = math.copysign(1, next_return)
             self.allocation_sign[asset_name] = lagged_return_sign
+            self.nex_returns[asset_name] = next_return
 
             if (lagged_return_sign > 0):
                 self.long_portfolio_assets.append(s)
