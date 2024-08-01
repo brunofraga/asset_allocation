@@ -9,8 +9,8 @@ STRATEGY_TP_NAME = "Vol. Targeting"
 
 class VolatilityTargetingStrategy (ts.TradingStrategy):
 
-    def __init__(self, strategy_name : str, assets : List[ias.IAsset], target_vol,  max_leverage=3, general_stop_function_active : bool = True):
-        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets, target_vol, general_stop_function_active)
+    def __init__(self, strategy_name : str, assets : List[ias.IAsset], target_vol,  max_leverage=3, stop_loss_limit : float =0.2):
+        ts.TradingStrategy.__init__(self, strategy_name + " | " + STRATEGY_TP_NAME, assets, target_vol, stop_loss_limit)
         # --- Properties -----------------------------------------
         self.days_to_realocate : int = 90
         self.days_range_to_calc_vol : int = 90
@@ -25,7 +25,7 @@ class VolatilityTargetingStrategy (ts.TradingStrategy):
     def get_trading_order(self, target_date : date) -> tord.TradingOrder:
         trading_order = tord.TradingOrder(self.portfolio)
 
-        trading_day = ((self.days_since_trade >= self.days_to_realocate)) | self.resume_trading_signal
+        trading_day = ((self.days_since_trade >= self.days_to_realocate)) | self.resume_trading_signal | self.is_vol_high
         if (trading_day):
             if (self.portfolio.has_enough_data(target_date, self.days_range_to_calc_vol)):
                 weights = self.portfolio.get_vol_targeting_weights(target_date, self.days_range_to_calc_vol, self.target_vol, self.max_leverage)
