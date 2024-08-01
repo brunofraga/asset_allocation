@@ -147,10 +147,10 @@ class TradingBook:
                 
         
         else:
-            self.__calculate_weights_with_volt_targeting(target_date)
+            # self.__calculate_weights_with_volt_targeting(target_date)
             
-            # if (len(self.strategies) == 4):
-            #     self.strategy_weights = self.fixed_strategy_weights
+            if (len(self.strategies) == 4):
+                self.strategy_weights = self.fixed_strategy_weights
 
 
             

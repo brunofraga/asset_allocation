@@ -86,7 +86,6 @@ class Portfolio (ias.IAsset):
         # calculando vol do portfolio
         current_asset_weights_series = pd.Series(self.current_asset_exposures)
 
-        # TODO: Calcular usando o sinal da exposicao
         total_gross_exposure = sum([np.abs(exposure) for exposure in current_asset_weights_series])
 
         portfolio_vol = 0
