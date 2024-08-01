@@ -86,6 +86,7 @@ class Portfolio (ias.IAsset):
         # calculando vol do portfolio
         current_asset_weights_series = pd.Series(self.current_asset_exposures)
 
+        # TODO: Calcular usando o sinal da exposicao
         total_gross_exposure = sum([np.abs(exposure) for exposure in current_asset_weights_series])
 
         portfolio_vol = 0
@@ -108,7 +109,7 @@ class Portfolio (ias.IAsset):
         
         return portfolio_vol
 
-    def get_vol_targeting_weights(self, target_date, last_n_points, target_vol, max_leverage):
+    def get_vol_targeting_weights(self, target_date, last_n_points, target_vol, max_leverage, allocation_sign = {}):
         # calculando covariancia e vol
         covariance = self.get_covariance_matrix(target_date, last_n_points)
         vols = self.get_assets_volatility(target_date, last_n_points)
@@ -118,11 +119,15 @@ class Portfolio (ias.IAsset):
         total_inverse_vol = sum(inverse_vol)
         intial_w = inverse_vol / total_inverse_vol
 
+        if (len(allocation_sign)> 0):
+            s_allocation_sign = pd.Series(list(allocation_sign.values()),index=allocation_sign.keys())
+            intial_w = intial_w * s_allocation_sign
+
         # calculando vol do portfolio
         portfolio_var =  intial_w @ covariance @ intial_w.T
         portfolio_vol = np.sqrt(portfolio_var)
         portfolio_vol = portfolio_vol * np.sqrt(252)
-        
+
         # calculando fator de ajuste:
         factor = min(target_vol/portfolio_vol, max_leverage)
 
