@@ -16,7 +16,7 @@ def run_bt():
     print("Running BT...")
     prmt.print_dash_line()
     # bt_desc = "Rodando com pesos personalizados"
-    bt_desc = "Rodando com pesos personalizados"
+    bt_desc = "Rodando com pesos personalizados - stoploss: vol>1.2 target_vol + perda>perda-max"
     # bt_desc = "Rodando com vol targeting"
     print(bt_desc)
     backtest = sebt.SwapEtfsBackTest(short_index="Libor", description=bt_desc)

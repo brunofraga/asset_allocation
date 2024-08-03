@@ -191,7 +191,7 @@ class TradingStrategy:
                 avg_vol = self.strat_pivot.tail(5)["Strategy Vol."].mean()
                 last3_daily_pnl = self.strat_pivot.tail(3)[tr.PNL_DAILY ]
                 is_losing_last_3_days = ((last3_daily_pnl.iloc[0] < 0) &(last3_daily_pnl.iloc[1] < 0) & (last3_daily_pnl.iloc[2] < 0))
-                self.is_loss_high = (loss_from_last_max <= self.stop_loss_limit ) # & (avg_vol >= 1.2*self.target_vol) #& (is_losing_last_3_days)
+                self.is_loss_high = (loss_from_last_max <= self.stop_loss_limit ) & (avg_vol >= 1.2*self.target_vol) #& (is_losing_last_3_days)
                 # self.is_loss_high = (self.number_of_vols_stds > 3) &  (loss_from_last_max < -0.1) & (self.strategy_vol > 2*self.target_vol)
                 
                 if (self.is_loss_high):

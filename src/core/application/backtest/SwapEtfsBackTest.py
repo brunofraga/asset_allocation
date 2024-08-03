@@ -35,7 +35,7 @@ class SwapEtfsBackTest:
         # Initializing Strategies:
         # ----------------------------------------------------------------------------------------------------------------
         self.book_strats = []
-        self.book_strats.append(vst.VolatilityTargetingStrategy("Equity", equity_swaps, target_vol=0.20, stop_loss_limit=0.5))
+        self.book_strats.append(vst.VolatilityTargetingStrategy("Equity", equity_swaps, target_vol=0.20, stop_loss_limit=0.4))
         self.book_strats.append(vst.VolatilityTargetingStrategy("Credit", credit_swaps, target_vol=0.20, stop_loss_limit=0))
         self.book_strats.append(ts.TrendFollowingStrategy("FX",fx_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=2, stop_loss_limit=0))
         self.book_strats.append(ts.TrendFollowingStrategy("Comdty",comdty_swaps, target_vol=0.20, months_to_hold=1, months_to_lag=12, max_leverage=3, stop_loss_limit=0))

@@ -49,8 +49,29 @@ Uma posição $w_{a,t} > 0 $ significa que a estratégia está long no swap e um
 
 Sendo uma estratégia com k swaps, o vetor de posições para cada swap usado nessa estratégia é definido por:
 
-$$W_{t} = \begin{bmatrix} w_{1,t} \\\ w_{2,t} \\\ \vdots \\\ w_{k,t} \end{bmatrix}^T \tag{3}$$
+$$W_{t} = \begin{bmatrix} 
+            w_{1,t} \\\
+            w_{2,t} \\\
+             \vdots \\\ 
+             w_{k,t} 
+             \end{bmatrix}^T = 
+             \begin{bmatrix} 
+            1/\sigma_{1,t} \\\
+            1/\sigma_{2,t} \\\
+             \vdots \\\ 
+             1/\sigma_{k,t} 
+             \end{bmatrix}^T
+             \tag{3}$$
 
+
+<br>
+
+$$ f = \text{Min} \left(\frac{V^{Estratégia}_{target}}{V^{Estratégia}_{t}}, \lambda_{max} \right)$$
+
+
+<br>
+
+$$ \overline{W}_{t} = f W_{t}$$
 
 Assim, dado o vetor de posições da estratégia e a matriz de covariância dos log-retornos dos swaps $COV_{t}^{Swaps}$, a volatilidade da estratégia é dada por:
 
