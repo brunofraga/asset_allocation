@@ -64,15 +64,6 @@ $$W_{t} = \begin{bmatrix}
              \tag{3}$$
 
 
-<br>
-
-$$ f = \text{Min} \left(\frac{V^{Estratégia}_{target}}{V^{Estratégia}_{t}}, \lambda_{max} \right)$$
-
-
-<br>
-
-$$ \overline{W}_{t} = f W_{t}$$
-
 Assim, dado o vetor de posições da estratégia e a matriz de covariância dos log-retornos dos swaps $COV_{t}^{Swaps}$, a volatilidade da estratégia é dada por:
 
 $$ V^{Estratégia}_{t} = \sqrt{W_{t} \times COV_{t}^{Swaps} \times W_{t}^{T}} \tag{4}$$
